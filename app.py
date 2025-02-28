@@ -1,8 +1,8 @@
 import joblib
 import streamlit as st 
-from PIL import Image
 import pandas as pd
 import base64
+import os
 
 # Load Model, Scaler & Polynomial Features
 model = joblib.load('model.pkl')
@@ -15,19 +15,23 @@ df_main = pd.read_csv('main.csv')
 
 # Function to Set Background Image
 def set_bg(image_path):
-    with open(image_path, "rb") as image_file:
-        base64_str = base64.b64encode(image_file.read()).decode()
-    st.markdown(
-        f"""
-        <style>
-        .stApp {{
-            background: url(data:image/png;base64,{base64_str}) no-repeat center center fixed;
-            background-size: cover;
-        }}
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
+    if os.path.exists(image_path):  # Ensure image exists
+        with open(image_path, "rb") as image_file:
+            base64_str = base64.b64encode(image_file.read()).decode()
+        st.markdown(
+            f"""
+            <style>
+            .stApp {{
+                background: url(data:image/png;base64,{base64_str}) no-repeat center center fixed;
+                background-size: cover;
+                backdrop-filter: blur(5px);
+            }}
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
+    else:
+        st.warning("⚠️ Background image not found! Using default theme.")
 
 # Function to Update Columns for Categorical Features
 def update_columns(df, true_columns):
@@ -59,7 +63,7 @@ def prediction(input):
 
 # Main Streamlit App
 def main():
-    set_bg("background.jpg")  # Change to your image file
+    set_bg("background.jpg")  # Change to your image file or use a URL-based background
 
     st.markdown(
         "<h1 style='text-align: center; color: white; font-size: 32px;'>🌾 Yield Crop Prediction Model</h1>",
@@ -68,18 +72,40 @@ def main():
 
     st.markdown("---")
 
-    # Form Layout
+    # Create a big box for all inputs
+    st.markdown(
+        """
+        <style>
+        .big-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid #ffffff;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        </style>
+        <div class='big-box'>
+        """,
+        unsafe_allow_html=True
+    )
+
+    # Form Layout (Inside Big Box)
+    st.markdown("<h3 style='text-align: center; color: white;'>📝 Enter Crop Details Below</h3>", unsafe_allow_html=True)
+
+    country = st.selectbox("🌍 Select Country:", df_main['area'].unique())
+    crop = st.selectbox("🌱 Select Crop:", df_main['item'].unique())
+
     col1, col2 = st.columns(2)
 
     with col1:
-        country = st.selectbox("🌍 Select Country:", df_main['area'].unique())
+        average_rainfall = st.number_input("💧 Average Rainfall (mm/year):", min_value=0.0, format="%.2f")
+        avg_temp = st.number_input("🌡️ Average Temperature (°C):", min_value=-10.0, max_value=50.0, format="%.2f")
 
     with col2:
-        crop = st.selectbox("🌱 Select Crop:", df_main['item'].unique())
+        presticides = st.number_input("🛡️ Pesticides Use (tonnes):", min_value=0.0, format="%.2f")
 
-    average_rainfall = st.number_input("💧 Enter Average Rainfall (mm/year):", min_value=0.0, format="%.2f")
-    presticides = st.number_input("🛡️ Enter Pesticides Use (tonnes):", min_value=0.0, format="%.2f")
-    avg_temp = st.number_input("🌡️ Enter Average Temperature (°C):", min_value=-10.0, max_value=50.0, format="%.2f")
+    # End Big Box
+    st.markdown("</div>", unsafe_allow_html=True)
 
     # Predict Button
     if st.button("🚜 Predict Yield", use_container_width=True):
