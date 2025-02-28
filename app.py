@@ -17,15 +17,9 @@ pf=joblib.load('pf.pkl')
 df_final=pd.read_csv('test.csv')
 df_main=pd.read_csv('main.csv')
 
-# Load Image
-
-image=Image.open('img.png')
-
 # Streamlit Function For Building Button & app.
 
 def main():
-    st.image(image,width=650)
-    st.title('Yield Crop Prediction')
     html_temp='''
     <div style='background-color:red; padding:12px'>
     <h1 style='color:  #000000; text-align: center;'>Yield Crop Prediction Machine Learning Model</h1>
