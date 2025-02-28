@@ -1,7 +1,6 @@
 import joblib
 import streamlit as st 
 import pandas as pd
-import base64
 import os
 
 # Load Model, Scaler & Polynomial Features
@@ -13,25 +12,63 @@ pf = joblib.load('pf.pkl')
 df_final = pd.read_csv('test.csv')
 df_main = pd.read_csv('main.csv')
 
-# Function to Set Background Image
-def set_bg(image_path):
-    if os.path.exists(image_path):  # Ensure image exists
-        with open(image_path, "rb") as image_file:
-            base64_str = base64.b64encode(image_file.read()).decode()
-        st.markdown(
-            f"""
-            <style>
-            .stApp {{
-                background: url(data:image/png;base64,{base64_str}) no-repeat center center fixed;
-                background-size: cover;
-                backdrop-filter: blur(5px);
-            }}
-            </style>
-            """,
-            unsafe_allow_html=True
-        )
-    else:
-        st.warning("⚠️ Background image not found! Using default theme.")
+# Custom CSS for Styling
+st.markdown(
+    """
+    <style>
+    /* Set Background to White */
+    .stApp {
+        background-color: white !important;
+    }
+    
+    /* Main Title */
+    .title {
+        color: #2E3B55; 
+        text-align: center;
+        font-size: 32px;
+        font-weight: bold;
+    }
+
+    /* Subtitle */
+    .subtitle {
+        color: #4A6FA5;
+        text-align: center;
+        font-size: 20px;
+    }
+
+    /* Input Box Styling */
+    .input-box {
+        background: #F8F9FA;
+        padding: 20px;
+        border-radius: 15px;
+        border: 1px solid #E0E0E0;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Predict Button */
+    .stButton>button {
+        background-color: #4A6FA5;
+        color: white;
+        font-size: 18px;
+        border-radius: 10px;
+        padding: 10px;
+        border: none;
+    }
+
+    /* Prediction Result */
+    .result-box {
+        background: #E3F2FD;
+        padding: 15px;
+        border-radius: 10px;
+        text-align: center;
+        font-size: 18px;
+        font-weight: bold;
+        color: #1E4A72;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
 
 # Function to Update Columns for Categorical Features
 def update_columns(df, true_columns):
@@ -63,34 +100,13 @@ def prediction(input):
 
 # Main Streamlit App
 def main():
-    set_bg("background.jpg")  # Change to your image file or use a URL-based background
-
-    st.markdown(
-        "<h1 style='text-align: center; color: white; font-size: 32px;'>🌾 Yield Crop Prediction Model</h1>",
-        unsafe_allow_html=True
-    )
+    st.markdown("<h1 class='title'>🌾 Yield Crop Prediction Model</h1>", unsafe_allow_html=True)
+    st.markdown("<h2 class='subtitle'>📝 Enter Crop Details Below</h2>", unsafe_allow_html=True)
 
     st.markdown("---")
 
-    # Create a big box for all inputs
-    st.markdown(
-        """
-        <style>
-        .big-box {
-            background: rgba(255, 255, 255, 0.2);
-            padding: 20px;
-            border-radius: 15px;
-            border: 2px solid #ffffff;
-            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
-        }
-        </style>
-        <div class='big-box'>
-        """,
-        unsafe_allow_html=True
-    )
-
-    # Form Layout (Inside Big Box)
-    st.markdown("<h3 style='text-align: center; color: white;'>📝 Enter Crop Details Below</h3>", unsafe_allow_html=True)
+    # Create a Big Box for Inputs
+    st.markdown("<div class='input-box'>", unsafe_allow_html=True)
 
     country = st.selectbox("🌍 Select Country:", df_main['area'].unique())
     crop = st.selectbox("🌱 Select Crop:", df_main['item'].unique())
@@ -104,21 +120,13 @@ def main():
     with col2:
         presticides = st.number_input("🛡️ Pesticides Use (tonnes):", min_value=0.0, format="%.2f")
 
-    # End Big Box
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown("</div>", unsafe_allow_html=True)  # End Input Box
 
     # Predict Button
     if st.button("🚜 Predict Yield", use_container_width=True):
         result = prediction([country, crop, average_rainfall, presticides, avg_temp])
 
-        st.markdown(
-            f"""
-            <div style="background-color: #2E8B57; padding: 15px; border-radius: 10px;">
-            <h3 style="text-align: center; color: white;">{result}</h3>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
+        st.markdown(f"<div class='result-box'>{result}</div>", unsafe_allow_html=True)
 
 # Run App
 if __name__ == '__main__':
