@@ -106,7 +106,6 @@ def main():
     st.markdown("---")
 
     # Create a Big Box for Inputs
-    st.markdown("<div class='input-box'>", unsafe_allow_html=True)
 
     country = st.selectbox("🌍 Select Country:", df_main['area'].unique())
     crop = st.selectbox("🌱 Select Crop:", df_main['item'].unique())
