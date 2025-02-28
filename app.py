@@ -114,7 +114,7 @@ def main():
 
     with col1:
         average_rainfall = st.number_input("💧 Average Rainfall (mm/year):", min_value=0.0, format="%.2f")
-        avg_temp = st.number_input("🌡️ Average Temperature (°C):", min_value=-10.0, max_value=50.0, format="%.2f")
+        avg_temp = st.number_input("🌡️ Average Temperature (°C):", min_value=0.0, max_value=70.0, format="%.2f")
 
     with col2:
         presticides = st.number_input("🛡️ Pesticides Use (tonnes):", min_value=0.0, format="%.2f")
